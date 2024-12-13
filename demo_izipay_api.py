@@ -97,10 +97,10 @@ if 'chat_mode' not in st.session_state:
 URL = "https://dev-iziia-ecommerce-chat-v1-624205664083.us-central1.run.app"
 # Configuración de las APIs
 API_ENDPOINTS = {
-    "app": URL +"/conversation",
-    "ya": URL + "/conversation"
+    "Izipay app": URL +"/conversation",
+    "Izipay ya": URL + "/conversation",
+    "Izipay soporte": URL + "/conversation"
 }
-
 
 secret_token = "chatpgt-token-xbpr435"
 
@@ -150,10 +150,15 @@ st.markdown("""
 def get_chat_response(prompt, chat_mode):
     try:
         
-        if chat_mode == "app":
+        if chat_mode == "Izipay app":
             data["configuration"]["datastores"] = ["db_izipay_ecommerce_app_openai"]
-        elif chat_mode == "ya":
+            data["configuration"]["tipificacion_stores"] = ["db_izipay_tipificaciones_app_openai_dev"]
+        elif chat_mode == "Izipay ya":
             data["configuration"]["datastores"] = ["db_izipay_ecommerce_ya_openai"]
+            data["configuration"]["tipificacion_stores"] = ["db_izipay_tipificaciones_app_openai_dev"]
+        elif chat_mode == "Izipay soporte":
+            data["configuration"]["datastores"] = ["db_izipay_ecommerce_sote_openai_dev"]
+            data["configuration"]["tipificacion_stores"] = ["db_izipay_tipificaciones_sote_openai_dev"]
         
         data["question"] = prompt
 
@@ -163,33 +168,13 @@ def get_chat_response(prompt, chat_mode):
             json=data,
             headers=headers
         )
+
         response_data = response.json()
-        return response_data["answer"]
-#        if chat_mode == "intents":
-#            # Formatear respuesta para modo de intenciones
-#            finish = response_data['finish']
-#            ask = response_data['ask']
-#            play = response_data['play']
-#            claim = response_data['claim']
-#            
-#            intent = ""
-#
-#            if ask:
-#                intent = "El cliente quiere información y preguntar."
-#            elif play:
-#                intent = "El cliente quiere jugar o comprar la tinka."
-#            elif claim:
-#                intent = "El cliente quiere reclamar o ver su estado de recarga."
-#            
-#            response_text = f"""
-#            📊 Análisis de Intención:
-#            - Intención detectada: {intent}
-#            """
-#            
-#            return response_text
-#        else:
-#            # Respuesta normal para modo general
-#            return response_data["answer"]
+        #display(response_data["trace"])
+        #display(response_data["trace_description"])
+        #response_data["answer"] = response_data["answer"] + "\n\nTraza: " + response_data["trace"] + "\nDescripcion de Traza: " + response_data["trace_description"]
+        return response_data
+        #return response_data["answer"]
             
     except Exception as e:
         return f"Error al procesar la pregunta: {str(e)}"
@@ -208,10 +193,11 @@ with st.sidebar:
     # Selector de modo de chat
     chat_mode = st.radio(
         "Selecciona el modo de chat:",
-        ("app", "ya"),
+        ("Izipay app", "Izipay ya", "Izipay soporte"),
         help="""
         🤖 Izipay App
         🎯 Izipay Ya
+        📊 Izipay Soporte
         """,
         key="chat_mode_selector"
     )
@@ -252,12 +238,26 @@ if prompt:
     # Obtener y mostrar respuesta
     with st.chat_message("assistant"):
         response = get_chat_response(prompt, st.session_state.chat_mode)
+        #print(response)
+        response_text = response["answer"]
+        trace = response["trace"]
+        trace_description = response["trace_description"]
+        citations = response["citations"]
+
         st.session_state.messages.append({
             "role": "assistant",
-            "content": response,
+            "content": response_text,
             "mode": st.session_state.chat_mode
         })
-        st.write(response)
+        st.write(response_text)
+        with st.expander("Referencias"):
+            st.write("Traza: ", trace)
+            st.write("Descripción de Traza: ", trace_description)
+            if isinstance(citations, list):
+                print("exp")
+                for count, ref in enumerate(citations):
+                    st.write(f"[{count + 1}]", ref["page_content"])
+                    st.write("Metadata: ", ref["metadata"])
 
 st.markdown('</div>', unsafe_allow_html=True)
 
