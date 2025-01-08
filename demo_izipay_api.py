@@ -94,7 +94,7 @@ if 'messages' not in st.session_state:
 if 'chat_mode' not in st.session_state:
     st.session_state.chat_mode = "app"
 
-URL = "https://dev-iziia-ecommerce-chat-v1-624205664083.us-central1.run.app"
+URL = "https://dev-chat-izipay-api-genai-new-v1-yutgchy3pa-uc.a.run.app"
 # Configuración de las APIs
 API_ENDPOINTS = {
     "Izipay app": URL +"/conversation",
@@ -102,10 +102,21 @@ API_ENDPOINTS = {
     "Izipay soporte": URL + "/conversation"
 }
 
-secret_token = "chatpgt-token-xbpr435"
+secret_token = "dev-chatpgt-token-xbpr435"
 
 headers = {'token': secret_token}
 #data = {"metadata": metadata}
+
+#PARTIAL_VARIABLES = {
+#    'assistant_name': 'SmartIzi',
+#    'assistant_role': 'Representante Informativo',
+#    'company_name': 'Izipay',
+#    'company_activity': 'Venta de servicios y terminales de puntos de venta llamados POS para la compra y venta.',
+#    'conversation_purpose': """
+#- Atender las consultas de los usuarios con muchos animos y responder de forma consiza.
+#- Si el usuario hace preguntas ambiguas puedes solicitarle informacion que consideres relavante.
+#- Objetivo Principal: Brindar información concisa sobre el uso del APP de pagos de Izipay.
+#"""}
 
 PARTIAL_VARIABLES = {
     'assistant_name': 'SmartIzi',
@@ -114,13 +125,14 @@ PARTIAL_VARIABLES = {
     'company_activity': 'Venta de servicios y terminales de puntos de venta llamados POS para la compra y venta.',
     'conversation_purpose': """
 - Atender las consultas de los usuarios con muchos animos y responder de forma consiza.
+- Si el usuario inicia la conversación con un Hola o saluda, indicale que resolveras sus preguntas acerca de soporte de izipay.
 - Si el usuario hace preguntas ambiguas puedes solicitarle informacion que consideres relavante.
-- Objetivo Principal: Brindar información concisa sobre el uso del APP de pagos de Izipay.
+- Objetivo Principal: Brindar información concisa sobre soporte de todos los productos de Izipay.
 """}
 
-user_id = "dev-new-user-02"
+user_id = "dev-new-user-02-sote1"
 channel_type = "PLAYGROUND"
-session_id = "session-izipay-dev-01"
+session_id = "session-izipay-dev-01-sote1"
 
 data = {
     "metadata": {
@@ -132,7 +144,6 @@ data = {
         "business_case": "izipay",
         "prompt_params": PARTIAL_VARIABLES.copy(),
         "config_params": { "maxMinutes": None, "temperature": 0.3, "k_top_retrieval": 3},
-        "datastores": ["db_izipay_ecommerce_app_openai"],
     }
     
 }
@@ -151,14 +162,14 @@ def get_chat_response(prompt, chat_mode):
     try:
         
         if chat_mode == "Izipay app":
-            data["configuration"]["datastores"] = ["db_izipay_ecommerce_app_openai"]
-            data["configuration"]["tipificacion_stores"] = ["db_izipay_tipificaciones_app_openai_dev"]
+            data["configuration"]["knowledge_stores"] = ["db_izipay_ecommerce_app_openai_dev"]
+            data["configuration"]["typification_stores"] = ["db_izipay_tipificaciones_app_openai_dev"]
         elif chat_mode == "Izipay ya":
-            data["configuration"]["datastores"] = ["db_izipay_ecommerce_ya_openai"]
-            data["configuration"]["tipificacion_stores"] = ["db_izipay_tipificaciones_app_openai_dev"]
+            data["configuration"]["knowledge_stores"] = ["db_izipay_ecommerce_ya_openai_dev"]
+            data["configuration"]["typification_stores"] = ["db_izipay_tipificaciones_ya_openai_dev"]
         elif chat_mode == "Izipay soporte":
-            data["configuration"]["datastores"] = ["db_izipay_ecommerce_sote_openai_dev"]
-            data["configuration"]["tipificacion_stores"] = ["db_izipay_tipificaciones_sote_openai_dev"]
+            data["configuration"]["knowledge_stores"] = ["db_izipay_ecommerce_sote_openai_dev"]
+            data["configuration"]["typification_stores"] = ["db_izipay_tipificaciones_sote_openai_dev"]
         
         data["question"] = prompt
 

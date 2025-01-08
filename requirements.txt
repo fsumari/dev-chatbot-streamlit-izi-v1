@@ -1,0 +1,12 @@
+streamlit-cookies-manager
+openai
+langchain
+langchain-openai
+qdrant-client
+langchain-community
+openpyxl
+python-dotenv
+vertexai
+pillow
+matplotlib
+opencv-python
