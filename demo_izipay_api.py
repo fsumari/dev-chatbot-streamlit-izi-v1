@@ -94,12 +94,16 @@ if 'messages' not in st.session_state:
 if 'chat_mode' not in st.session_state:
     st.session_state.chat_mode = "app"
 
-URL = "https://dev-chat-izipay-api-genai-new-v1-yutgchy3pa-uc.a.run.app"
+URL_APP_YA_SOTE = "https://dev-chat-izipay-api-genai-new-v1-yutgchy3pa-uc.a.run.app"
+URL_REIN_AGIZ = "https://dev-chat-izipay-api-genai-rein-agiz-624205664083.us-central1.run.app"
+
 # Configuración de las APIs
 API_ENDPOINTS = {
-    "Izipay app": URL +"/conversation",
-    "Izipay ya": URL + "/conversation",
-    "Izipay soporte": URL + "/conversation"
+    "App": URL_APP_YA_SOTE + "/conversation",
+    "Ya": URL_APP_YA_SOTE + "/conversation",
+    "Soporte": URL_APP_YA_SOTE + "/conversation",
+    "Agente Izipay": URL_REIN_AGIZ + "/conversation",
+    "Retiro Inmediato": URL_REIN_AGIZ + "/conversation",
 }
 
 secret_token = "dev-chatpgt-token-xbpr435"
@@ -130,9 +134,9 @@ PARTIAL_VARIABLES = {
 - Objetivo Principal: Brindar información concisa sobre soporte de todos los productos de Izipay.
 """}
 
-user_id = "dev-new-user-02-sote1"
+user_id = "dev-new-user-02-sote2"
 channel_type = "PLAYGROUND"
-session_id = "session-izipay-dev-01-sote1"
+session_id = "session-izipay-dev-01-sote2"
 
 data = {
     "metadata": {
@@ -161,15 +165,19 @@ st.markdown("""
 def get_chat_response(prompt, chat_mode):
     try:
         
-        if chat_mode == "Izipay app":
+        if chat_mode == "App":
             data["configuration"]["knowledge_stores"] = ["db_izipay_ecommerce_app_openai_dev"]
             data["configuration"]["typification_stores"] = ["db_izipay_tipificaciones_app_openai_dev"]
-        elif chat_mode == "Izipay ya":
+        elif chat_mode == "Ya":
             data["configuration"]["knowledge_stores"] = ["db_izipay_ecommerce_ya_openai_dev"]
             data["configuration"]["typification_stores"] = ["db_izipay_tipificaciones_ya_openai_dev"]
-        elif chat_mode == "Izipay soporte":
+        elif chat_mode == "Soporte":
             data["configuration"]["knowledge_stores"] = ["db_izipay_ecommerce_sote_openai_dev"]
             data["configuration"]["typification_stores"] = ["db_izipay_tipificaciones_sote_openai_dev"]
+        elif chat_mode == "Agente Izipay":
+            data["configuration"]["knowledge_stores"] = ["dev_izipay_index_agiz_azureopenai"]
+        elif chat_mode == "Retiro Inmediato":
+            data["configuration"]["knowledge_stores"] = ["dev_izipay_index_rein_azureopenai"]
         
         data["question"] = prompt
 
@@ -204,11 +212,13 @@ with st.sidebar:
     # Selector de modo de chat
     chat_mode = st.radio(
         "Selecciona el modo de chat:",
-        ("Izipay app", "Izipay ya", "Izipay soporte"),
+        ("App", "Ya", "Soporte", "Agente Izipay", "Retiro Inmediato"),
         help="""
         🤖 Izipay App
         🎯 Izipay Ya
-        📊 Izipay Soporte
+        📊 Soporte
+        🤖 Agenete Izipay
+        📊 Retiro Inmediato
         """,
         key="chat_mode_selector"
     )
