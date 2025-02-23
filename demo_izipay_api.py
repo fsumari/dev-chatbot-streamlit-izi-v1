@@ -1,16 +1,18 @@
 import streamlit as st
 import requests
 import json
+import uuid
+from datetime import datetime
 
 # Configuración inicial de la página
 st.set_page_config(
     page_title="Chat IA IZIPAY",
-    page_icon="🎰",
+    page_icon="💬",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Estilos personalizados con rojo y blanco
+# Estilos personalizados con rojo y blanco (manteniendo los estilos existentes)
 st.markdown("""
     <style>
         /* Colores personalizados */
@@ -21,13 +23,12 @@ st.markdown("""
             --gray: #4A4A4A;
         }
         
-        /* Estilo del header */
+        /* Manteniendo todos los estilos anteriores... */
         .stApp header {
             background-color: var(--main-red);
             color: white;
         }
         
-        /* Estilo del título principal */
         .main-title {
             color: var(--main-red);
             text-align: center;
@@ -36,7 +37,6 @@ st.markdown("""
             font-weight: bold;
         }
         
-        /* Estilo para los botones */
         .stButton button {
             background-color: var(--main-red);
             color: white;
@@ -49,7 +49,6 @@ st.markdown("""
             background-color: var(--dark-red);
         }
         
-        /* Estilo para el chat */
         .stChatMessage {
             background-color: var(--light-red);
             border-radius: 10px;
@@ -57,18 +56,15 @@ st.markdown("""
             margin: 0.5rem 0;
         }
         
-        /* Estilo para el sidebar */
         .css-1d391kg {
             background-color: white;
             border-right: 1px solid var(--light-red);
         }
         
-        /* Estilo para los radio buttons */
         .stRadio label {
             color: var(--gray);
         }
         
-        /* Logo container */
         .logo-container {
             text-align: center;
             padding: 1rem;
@@ -77,7 +73,6 @@ st.markdown("""
             margin-bottom: 2rem;
         }
         
-        /* Chat container */
         .chat-container {
             background-color: white;
             border-radius: 10px;
@@ -85,42 +80,46 @@ st.markdown("""
             margin: 1rem 0;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+        
+        /* Nuevo estilo para el botón de reinicio de sesión */
+        .reset-session-button {
+            margin-top: 1rem;
+            padding: 0.5rem;
+            background-color: var(--main-red);
+            color: white;
+            border-radius: 5px;
+            text-align: center;
+        }
     </style>
 """, unsafe_allow_html=True)
+
+# Función para generar un nuevo session_id
+def generate_session_id():
+    return f"dev-test-streamlit-{str(uuid.uuid4())}"
 
 # Inicialización de variables de sesión
 if 'messages' not in st.session_state:
     st.session_state.messages = []
 if 'chat_mode' not in st.session_state:
     st.session_state.chat_mode = "app"
+if 'session_id' not in st.session_state:
+    st.session_state.session_id = generate_session_id()
 
-URL_APP_YA_SOTE = "https://dev-chat-izipay-api-genai-new-v1-yutgchy3pa-uc.a.run.app"
+# URLs y configuración de API (manteniendo las existentes)
+URL_APP_YA = "https://dev-chat-izipay-api-genai-iapp-iya-v1-624205664083.us-central1.run.app"
+URL_SOTE = "https://dev-chat-izipay-api-genai-sote-v1-624205664083.us-central1.run.app"
 URL_REIN_AGIZ = "https://dev-chat-izipay-api-genai-rein-agiz-624205664083.us-central1.run.app"
 
-# Configuración de las APIs
 API_ENDPOINTS = {
-    "App": URL_APP_YA_SOTE + "/conversation",
-    "Ya": URL_APP_YA_SOTE + "/conversation",
-    "Soporte": URL_APP_YA_SOTE + "/conversation",
+    "App": URL_APP_YA + "/conversation",
+    "Ya": URL_APP_YA + "/conversation",
+    "Soporte": URL_SOTE + "/conversation",
     "Agente Izipay": URL_REIN_AGIZ + "/conversation",
     "Retiro Inmediato": URL_REIN_AGIZ + "/conversation",
 }
 
 secret_token = "dev-chatpgt-token-xbpr435"
-
 headers = {'token': secret_token}
-#data = {"metadata": metadata}
-
-#PARTIAL_VARIABLES = {
-#    'assistant_name': 'SmartIzi',
-#    'assistant_role': 'Representante Informativo',
-#    'company_name': 'Izipay',
-#    'company_activity': 'Venta de servicios y terminales de puntos de venta llamados POS para la compra y venta.',
-#    'conversation_purpose': """
-#- Atender las consultas de los usuarios con muchos animos y responder de forma consiza.
-#- Si el usuario hace preguntas ambiguas puedes solicitarle informacion que consideres relavante.
-#- Objetivo Principal: Brindar información concisa sobre el uso del APP de pagos de Izipay.
-#"""}
 
 PARTIAL_VARIABLES = {
     'assistant_name': 'SmartIzi',
@@ -132,24 +131,30 @@ PARTIAL_VARIABLES = {
 - Si el usuario inicia la conversación con un Hola o saluda, indicale que resolveras sus preguntas acerca de soporte de izipay.
 - Si el usuario hace preguntas ambiguas puedes solicitarle informacion que consideres relavante.
 - Objetivo Principal: Brindar información concisa sobre soporte de todos los productos de Izipay.
-"""}
+"""
+}
 
-user_id = "dev-new-user-02-sote2"
+user_id = "dev-test-streamlit-user-general"
 channel_type = "PLAYGROUND"
-session_id = "session-izipay-dev-01-sote2"
 
+# Función para reiniciar la sesión
+def reset_session():
+    st.session_state.session_id = generate_session_id()
+    st.session_state.messages = []
+    st.rerun()
+
+# Actualizar la configuración de data para usar el session_id dinámico
 data = {
     "metadata": {
         "userId": user_id,
         "channelType": channel_type,
-        "sessionId": session_id,
+        "sessionId": st.session_state.session_id,
     },
     "configuration": {
         "business_case": "izipay",
         "prompt_params": PARTIAL_VARIABLES.copy(),
-        "config_params": { "maxMinutes": None, "temperature": 0.3, "k_top_retrieval": 3},
+        "config_params": {"maxMinutes": None, "temperature": 0.3, "k_top_retrieval": 3},
     }
-    
 }
 
 # Logo de Izipay
@@ -161,10 +166,9 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# Función para llamar a la API de chat
+# Función get_chat_response (manteniendo la existente)
 def get_chat_response(prompt, chat_mode):
     try:
-        
         if chat_mode == "App":
             data["configuration"]["knowledge_stores"] = ["db_izipay_ecommerce_app_openai_dev"]
             data["configuration"]["typification_stores"] = ["db_izipay_tipificaciones_app_openai_dev"]
@@ -179,6 +183,8 @@ def get_chat_response(prompt, chat_mode):
         elif chat_mode == "Retiro Inmediato":
             data["configuration"]["knowledge_stores"] = ["dev_izipay_index_rein_azureopenai"]
         
+        # Actualizar el session_id en cada llamada
+        data["metadata"]["sessionId"] = st.session_state.session_id
         data["question"] = prompt
 
         endpoint = API_ENDPOINTS[chat_mode]
@@ -188,12 +194,7 @@ def get_chat_response(prompt, chat_mode):
             headers=headers
         )
 
-        response_data = response.json()
-        #display(response_data["trace"])
-        #display(response_data["trace_description"])
-        #response_data["answer"] = response_data["answer"] + "\n\nTraza: " + response_data["trace"] + "\nDescripcion de Traza: " + response_data["trace_description"]
-        return response_data
-        #return response_data["answer"]
+        return response.json()
             
     except Exception as e:
         return f"Error al procesar la pregunta: {str(e)}"
@@ -208,6 +209,13 @@ with st.sidebar:
             <h2 style="color: var(--main-red);">💬 Configuración del Chat</h2>
         </div>
     """, unsafe_allow_html=True)
+    
+    # Mostrar el ID de sesión actual
+    st.markdown(f"**ID de Sesión Actual:** `{st.session_state.session_id}`")
+    
+    # Botón para reiniciar sesión
+    if st.button("🔄 Reiniciar Sesión"):
+        reset_session()
     
     # Selector de modo de chat
     chat_mode = st.radio(
@@ -230,24 +238,21 @@ with st.sidebar:
             <ul style="color: var(--gray);">
                 <li>💭 Chat para consultas</li>
                 <li>📝 Historial de conversación</li>
+                <li>🔄 Reinicio de sesión</li>
             </ul>
         </div>
     """, unsafe_allow_html=True)
 
-# Contenedor principal del chat
+# Resto del código de chat (manteniendo el existente)
 st.markdown('<div class="chat-container">', unsafe_allow_html=True)
 
-# Área principal del chat
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.write(message["content"])
 
-# Input del usuario
 prompt = st.chat_input(f"Escribe tu mensaje aquí... (Modo: {st.session_state.chat_mode})")
 
-# Procesamiento de entrada del usuario
 if prompt:
-    # Agregar mensaje del usuario
     st.session_state.messages.append({
         "role": "user",
         "content": prompt,
@@ -256,10 +261,8 @@ if prompt:
     with st.chat_message("user"):
         st.write(prompt)
 
-    # Obtener y mostrar respuesta
     with st.chat_message("assistant"):
         response = get_chat_response(prompt, st.session_state.chat_mode)
-        #print(response)
         response_text = response["answer"]
         trace = response["trace"]
         trace_description = response["trace_description"]
@@ -275,7 +278,6 @@ if prompt:
             st.write("Traza: ", trace)
             st.write("Descripción de Traza: ", trace_description)
             if isinstance(citations, list):
-                print("exp")
                 for count, ref in enumerate(citations):
                     st.write(f"[{count + 1}]", ref["page_content"])
                     st.write("Metadata: ", ref["metadata"])
@@ -283,14 +285,17 @@ if prompt:
 st.markdown('</div>', unsafe_allow_html=True)
 
 # Botones de control
-col1, col2 = st.columns(2)
+col1, col2, col3 = st.columns(3)
 with col1:
     if st.button("🗑️ Limpiar historial"):
         st.session_state.messages = []
-        st.experimental_rerun()
+        st.rerun()
 with col2:
+    if st.button("🔄 Nueva Sesión"):
+        reset_session()
+with col3:
     if st.button("💾 Descargar conversación"):
-        conversation_text = ""
+        conversation_text = f"ID de Sesión: {st.session_state.session_id}\n\n"
         for msg in st.session_state.messages:
             role = msg["role"].upper()
             mode = msg.get("mode", "general").upper()
@@ -299,6 +304,6 @@ with col2:
         st.download_button(
             label="📥 Descargar chat",
             data=conversation_text,
-            file_name="chat_latinka.txt",
+            file_name=f"chat_izipay_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
             mime="text/plain"
         )
