@@ -108,7 +108,7 @@ if 'session_id' not in st.session_state:
 # URLs y configuración de API (manteniendo las existentes)
 URL_APP_YA = "https://dev-chat-izipay-api-genai-iapp-iya-v1-624205664083.us-central1.run.app"
 URL_SOTE = "https://dev-chat-izipay-api-genai-sote-v1-624205664083.us-central1.run.app"
-URL_REIN_AGIZ = "https://dev-chat-izipay-api-genai-rein-agiz-624205664083.us-central1.run.app"
+URL_REIN_AGIZ = "https://dev-chat-izipay-api-genai-rein-agiz-v1-624205664083.us-central1.run.app"
 
 API_ENDPOINTS = {
     "App": URL_APP_YA + "/conversation",
