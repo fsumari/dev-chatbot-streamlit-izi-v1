@@ -110,12 +110,17 @@ URL_APP_YA = "https://dev-chat-izipay-api-genai-iapp-iya-v1-624205664083.us-cent
 URL_SOTE = "https://dev-chat-izipay-api-genai-sote-v1-624205664083.us-central1.run.app"
 URL_REIN_AGIZ = "https://dev-chat-izipay-api-genai-rein-agiz-v1-624205664083.us-central1.run.app"
 
+
+#https://qa-chat-izipay-api-genai-iapp-iya-v1-624205664083.us-central1.run.app
+#https://qa-chat-izipay-api-genai-sote-v1-624205664083.us-central1.run.app
 API_ENDPOINTS = {
     "App": URL_APP_YA + "/conversation",
     "Ya": URL_APP_YA + "/conversation",
     "Soporte": URL_SOTE + "/conversation",
     "Agente Izipay": URL_REIN_AGIZ + "/conversation",
     "Retiro Inmediato": URL_REIN_AGIZ + "/conversation",
+    "Compra y Estatus de mi Pedido": URL_REIN_AGIZ + "/conversation",
+    "Arisale": URL_REIN_AGIZ + "/conversation",
 }
 
 secret_token = "dev-chatpgt-token-xbpr435"
@@ -182,7 +187,11 @@ def get_chat_response(prompt, chat_mode):
             data["configuration"]["knowledge_stores"] = ["dev_izipay_index_agiz_azureopenai"]
         elif chat_mode == "Retiro Inmediato":
             data["configuration"]["knowledge_stores"] = ["dev_izipay_index_rein_azureopenai"]
-        
+        elif chat_mode == "Compra y Estatus de mi Pedido":
+            data["configuration"]["knowledge_stores"] = ["dev_izipay_index_coes_azureopenai"]
+        elif chat_mode == "Arisale":
+            data["configuration"]["knowledge_stores"] = ["dev_izipay_index_aris_azureopenai"]
+
         # Actualizar el session_id en cada llamada
         data["metadata"]["sessionId"] = st.session_state.session_id
         data["question"] = prompt
@@ -220,13 +229,15 @@ with st.sidebar:
     # Selector de modo de chat
     chat_mode = st.radio(
         "Selecciona el modo de chat:",
-        ("App", "Ya", "Soporte", "Agente Izipay", "Retiro Inmediato"),
+        ("App", "Ya", "Soporte", "Agente Izipay", "Retiro Inmediato", "Compra y Estatus de mi Pedido", "Arisale"),
         help="""
         🤖 Izipay App
         🎯 Izipay Ya
         📊 Soporte
         🤖 Agenete Izipay
         📊 Retiro Inmediato
+        🤖 Compra y Estatus de mi Pedido
+        🎯 Arisale
         """,
         key="chat_mode_selector"
     )
